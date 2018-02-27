@@ -30,39 +30,22 @@ node {
   try {
 
     stage ('Build docker') {
-      sh("docker -H :2375 build -t ${imageTag} .")
-      sh("docker -H :2375 build -t ${dockerUsername}/${appName}:latest .")
+      sh("docker build -t ${imageTag} .")
+      sh("docker build -t ${dockerUsername}/${appName}:latest .")
     }
 
-    stage ('Run Tests') {
-      sh('docker-compose -H :2375 -f docker-compose-test.yml build')
-      sh('docker-compose -H :2375 -f docker-compose-test.yml run --rm test')
-      sh('docker-compose -H :2375 -f docker-compose-test.yml stop')
-    }
-
+   
     stage('Push Docker') {
-      withCredentials([usernamePassword(credentialsId: 'Vizzuality Docker Hub', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
-        sh("docker -H :2375 login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}")
-        sh("docker -H :2375 push ${imageTag}")
-        sh("docker -H :2375 push ${dockerUsername}/${appName}:latest")
-        sh("docker -H :2375 rmi ${imageTag}")
+      withCredentials([usernamePassword(credentialsId: 'Vizzuality_Docker_Hub', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+        sh("docker login -u ${DOCKER_HUB_USERNAME} -p ${DOCKER_HUB_PASSWORD}")
+        sh("docker push ${imageTag}")
+        sh("docker push ${dockerUsername}/${appName}:latest")
+        sh("docker rmi ${imageTag}")
       }
     }
 
     stage ("Deploy Application") {
       switch ("${env.BRANCH_NAME}") {
-
-        // Roll out to staging
-        case "develop":
-          sh("echo Deploying to STAGING cluster")
-          sh("kubectl config use-context gke_${GCLOUD_PROJECT}_${GCLOUD_GCE_ZONE}_${KUBE_STAGING_CLUSTER}")
-          def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
-          if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
-            sh("sed -i -e 's/{name}/${appName}/g' k8s/staging/*.yaml")
-            sh("kubectl apply -f k8s/staging/")
-          }
-          sh("kubectl set image deployment ${appName} ${appName}=${imageTag} --record")
-          break
 
         // Roll out to production
         case "master":
@@ -86,7 +69,7 @@ node {
           }
           if (userInput == true && !didTimeout){
             sh("echo Deploying to PROD cluster")
-            sh("kubectl config use-context gke_${GCLOUD_PROJECT}_${GCLOUD_GCE_ZONE}_${KUBE_PROD_CLUSTER}")
+            sh("kubectl config use-context stackpoint")
             def service = sh([returnStdout: true, script: "kubectl get deploy ${appName} || echo NotFound"]).trim()
             if ((service && service.indexOf("NotFound") > -1) || (forceCompleteDeploy)){
               sh("sed -i -e 's/{name}/${appName}/g' k8s/production/*.yaml")
@@ -107,7 +90,7 @@ node {
     }
 
     // Notify Success
-    slackSend (color: '#00FF00', channel: '#the-new-api', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    slackSend (color: '#00FF00', channel: '#sdgs-api', message: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     emailext (
       subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
       body: """<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
@@ -120,7 +103,7 @@ node {
 
     currentBuild.result = "FAILURE"
     // Notify Error
-    slackSend (color: '#FF0000', channel: '#the-new-api', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
+    slackSend (color: '#FF0000', channel: '#sdgs-api', message: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")
     emailext (
       subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
       body: """<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
