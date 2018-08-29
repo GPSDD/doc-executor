@@ -113,6 +113,10 @@ class ImporterService {
                                     }
                                     newKey = `col_${newKey}`;
                                 }
+                                if(value && typeof value === "string" && value.indexOf('#') === 0){
+                                    //clear out hash values
+                                    data[newKey] = "";
+                                }
                                 if (!(value instanceof Object) && isJSONObject(value)) {
                                     try {
                                         data[newKey] = JSON.parse(value);
