@@ -66,7 +66,7 @@ class ImporterService {
                     reject(err);
                 });
                 stream.on('end', () => {
-                    logger.info(`Total Row Count: ${rowCount}`)
+                    logger.debug(`Total Row Count: ${rowCount}`)
                     rowCount = 0;
                     if (this.numPacks === 0 && this.body && this.body.length === 0) {
                         statusQueueService.sendErrorMessage(this.taskId, 'File empty');
