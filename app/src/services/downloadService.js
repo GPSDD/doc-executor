@@ -7,8 +7,9 @@ const Bluebird = require('bluebird');
 const https = require('https');
 const http = require('http');
 const crypto = require('crypto');
-
 const algorithm = 'sha256';
+
+const download = require('download');
 
 function humanFileSize(bytes, si) {
     const thresh = si ? 1000 : 1024;
@@ -29,54 +30,15 @@ const requestDownloadFile = function (url, path, verify) {
     return new Bluebird(function (resolve, reject) {
         logger.debug('Sending request');
         try {
-            let dlprogress = 0;
-            let oldProgress = 0;
-            let requestserver = null;
-            if (url.trim().startsWith('https')) {
-                requestserver = https.request(url);
-            } else {
-                requestserver = http.request(url);
-            }
-            requestserver.addListener('response', function (response) {
-                let downloadfile = fs.createWriteStream(path, {
-                    flags: 'a'
-                });
-                logger.info(`File size: ${humanFileSize(parseInt(response.headers['content-length'], 10))}`);
-                let shasum = null;
-                if (verify) {
-                    shasum = crypto.createHash(algorithm);
-                }
-                response.addListener('data', function (chunk) {
-                    if (verify) {
-                        shasum.update(chunk);
-                    }
-                    dlprogress += chunk.length;
-                    downloadfile.write(chunk, {
-                        encoding: 'binary'
-                    });
-                    if (dlprogress - oldProgress > 100 * 1024 * 1024) {
-                        logger.debug(`${humanFileSize(dlprogress)} progress`);
-                        oldProgress = dlprogress;
-                    }
-                });
-                response.addListener('end', function () {
-                    downloadfile.end();
-                    logger.info(`${humanFileSize(dlprogress)} downloaded. Ended from server`);
-                    if (verify) {
-                        const sha256 = shasum.digest('hex');
-                        resolve(sha256);
-                    } else {
-                        resolve();
-                    }
-
-                });
-                response.on('error', function (e) {
-                    logger.error('Error downloading file', e);
-                    reject(e);
-                });
-
+            download(url).then(data => {
+                fs.writeFileSync(path, data);
+                logger.info(`File size: ${humanFileSize(parseInt(data.length, 10))}`);
+                resolve();
+            }).catch((err) => {
+                logger.error('Error downloading file', e);
+                reject(e);
             });
-            requestserver.end();
+          
         } catch (err) {
             logger.error(err);
             reject(err);
