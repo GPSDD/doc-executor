@@ -149,10 +149,10 @@ class ImporterService {
                     rowCount++;
                     if(data.country && data.country.indexOf('#') > -1){
                         logger.debug('skip row - has hashes')
-                        return;
+                    } else {
+                        this.body.push(this.indexObj);
+                        this.body.push(data);    
                     }
-                    this.body.push(this.indexObj);
-                    this.body.push(data);
 
                 } else {
                     logger.error('Data and/or options have no headers specified');
