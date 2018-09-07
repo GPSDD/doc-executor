@@ -66,8 +66,7 @@ class ImporterService {
                     reject(err);
                 });
                 stream.on('end', () => {
-                    logger.debug(`Total Row Count: ${rowCount}`)
-                    logger.debug(`Total Body Row Count: ${this.body.length}`)
+                    logger.debug(`Body data: ${this.body}`)
                     rowCount = 0;
                     if (this.numPacks === 0 && this.body && this.body.length === 0) {
                         statusQueueService.sendErrorMessage(this.taskId, 'File empty');
@@ -76,7 +75,7 @@ class ImporterService {
                     }
                     logger.debug('Finishing reading file');
                     if (this.body && this.body.length > 0) {
-                        // send last rows to data queue
+                        // send last rows to data queue                        
                         dataQueueService.sendDataMessage(this.taskId, this.index, this.body).then(() => {
                             this.body = [];
                             logger.debug('Pack saved successfully, num:', ++this.numPacks);
@@ -116,9 +115,10 @@ class ImporterService {
                                     }
                                     newKey = `col_${newKey}`;
                                 }
-                                if(value && typeof value === "string" && value.indexOf('#') === 0){
+                                if(value && typeof value === "string" && value.indexOf('#') > -1){
                                     //clear out hash values
                                     data[newKey] = "";
+                                    console.log(data);
                                 }
                                 if (!(value instanceof Object) && isJSONObject(value)) {
                                     try {
