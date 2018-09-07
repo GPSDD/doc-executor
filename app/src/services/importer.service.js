@@ -116,11 +116,6 @@ class ImporterService {
                                     }
                                     newKey = `col_${newKey}`;
                                 }
-                                if(value && typeof value === "string" && value.indexOf('#') > -1){
-                                    //clear out hash values
-                                    data[newKey] = "";
-                                    console.log(data);
-                                }
                                 if (!(value instanceof Object) && isJSONObject(value)) {
                                     try {
                                         data[newKey] = JSON.parse(value);
@@ -140,7 +135,7 @@ class ImporterService {
                             throw new Error(e);
                         }
                     });
-
+                    
                     if (this.legend && (this.legend.lat || this.legend.long)) {
                         if (data[this.legend.lat] && data[this.legend.long]) {
                             data.the_geom = convertPointToGeoJSON(data[this.legend.lat], data[this.legend.long]);
@@ -152,6 +147,10 @@ class ImporterService {
                     }
                     logger.trace('Adding new row');
                     rowCount++;
+                    if(data.country && data.country.indexOf('#') > -1){
+                        logger.debug('skip row - has hashes')
+                        return;
+                    }
                     this.body.push(this.indexObj);
                     this.body.push(data);
 
