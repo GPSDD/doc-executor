@@ -7,7 +7,6 @@ const StamperyService = require('services/stamperyService');
 
 const CONTAIN_SPACES = /\s/g;
 const IS_NUMBER = /^\d+$/;
-let rowCount = 0;
 function isJSONObject(value) {
     if (isNaN(value) && /^[\],:{}\s]*$/.test(value.replace(/\\["\\\/bfnrtu]/g, '@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
         return true;
@@ -121,7 +120,7 @@ class ImporterService {
                                     } catch (e) {
                                         data[newKey] = value;
                                     }
-                                } else if (!isNaN(value)) {
+                                } else if (!isNaN(value) && value != '') {
                                     data[newKey] = Number(value);
                                 } else {
                                     data[newKey] = value;
