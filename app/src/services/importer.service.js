@@ -66,7 +66,6 @@ class ImporterService {
                 });
                 stream.on('end', () => {
                     logger.debug(`Body data: ${this.body.length}`)
-                    rowCount = 0;
                     if (this.numPacks === 0 && this.body && this.body.length === 0) {
                         statusQueueService.sendErrorMessage(this.taskId, 'File empty');
                         resolve();
@@ -144,7 +143,6 @@ class ImporterService {
                         }
                     }
                     logger.trace('Adding new row');
-                    rowCount++;
                     if(data.country && data.country.indexOf('#') > -1){
                         logger.debug('skip row - has hashes')
                     } else {
