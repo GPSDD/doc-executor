@@ -97,10 +97,11 @@ class ImporterService {
     //this function will loop numRows into the body data to verify the first row contains all the correct data for the column data type
     //for now we are just checking for numbers, since that seems to be the cause for most data skips
     checkColumnDataTypes(numRows) {
-        const loopRows = numRows > this.body.length ? this.body.length : numRows;
+        //every other row is an index row - so multiply by two
+        const loopRows = numRows*2 > this.body.length ? this.body.length : numRows * 2;
         let colDataTypes = [];
-        let dataKeys = Object.keys(this.body[0]); 
-        for(var i = 0; i<(loopRows-1);i++) {
+        let dataKeys = Object.keys(this.body[1]); 
+        for(var i = 1; i<(loopRows-1);i=i+2) {
             const row = this.body[i];
             _.forEach(dataKeys, function(rowKey) {
                 if(IS_NUMBER.test(row[rowKey])) {
@@ -120,15 +121,15 @@ class ImporterService {
         }
 
         logger.debug('colDataTypes:', colDataTypes);
-        logger.debug('first row:', this.body[0]);
+        logger.debug('first row:', this.body[1]);
 
         //colDataTypes contains all keys that should be numbers.  Make sure the first row in body if empty has a zero in place to ensure the correct data type.
         colDataTypes.forEach(item => {
-            if(this.body[0][item.key] == null || this.body[0][item.key].trim().length == 0) {
+            if(this.body[1][item.key] == null || this.body[1][item.key].trim().length == 0) {
                 if(item.value === "NUMBER")
-                    this.body[0][key] = 0;
+                    this.body[1][key] = 0;
                 else if (item.value === "STRING")
-                    this.body[0][key] = " ";
+                    this.body[1][key] = " ";
             }
         })
     }
