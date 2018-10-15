@@ -74,6 +74,7 @@ class ImporterService {
                     }
                     logger.debug('Finishing reading file');
                     if (this.body && this.body.length > 0) {
+                        this.checkColumnDataTypes(50);
                         // send last rows to data queue                        
                         dataQueueService.sendDataMessage(this.taskId, this.index, this.body).then(() => {
                             this.body = [];
@@ -93,7 +94,42 @@ class ImporterService {
             }
         });
     }
-
+    //this function will loop numRows into the body data to verify the first row contains all the correct data for the column data type
+    //for now we are just checking for numbers, since that seems to be the cause for most data skips
+    checkColumnDataTypes(numRows) {
+        const loopRows = numRows > this.body.length ? numRows : this.body.length;
+        let colDataTypes = [];
+        let dataKeys = Object.keys(this.body[0]); 
+        for(var i = 0; i<(loopRows-1);i++) {
+            const row = this.body[i];
+            _.forEach(dataKeys, function(rowKey) {
+                if(colDataTypes[rowKey] == null || colDataTypes[rowKey]) {
+                    if(IS_NUMBER.test(row[rowKey])) {
+                        if(!colDataTypes[rowKey])
+                            colDataTypes.push({key:rowKey,value:"NUMBER"})
+                    }
+                    else if(row[rowKey] !== null && row[rowKey].length > 0) {
+                        //let's delete the key so we no longer need to iterate through that key since there's no
+                        //data serialization that needs to occur
+                        //string should overwrite number
+                        if(colDataTypes[rowKey] && colDataTypes[rowKey] === "NUMBER")
+                            colDataTypes[rowKey] === "STRING"
+                        else
+                            colDataTypes.push({key:rowKey,value:"STRING"})
+                    }
+                }                    
+            })
+        }
+        //colDataTypes contains all keys that should be numbers.  Make sure the first row in body if empty has a zero in place to ensure the correct data type.
+        colDataTypes.forEach(item => {
+            if(this.body[0][item.key] == null || this.body[0][item.key].trim().length == 0) {
+                if(item.value === "NUMBER")
+                    this.body[0][key] = 0;
+                else if (item.value === "STRING")
+                    this.body[0][key] = " ";
+            }
+        })
+    }
     async processRow(stream, reject, data) {
         try {
             stream.pause();
