@@ -123,15 +123,18 @@ class ImporterService {
         logger.debug('colDataTypes:', colDataTypes);
         logger.debug('first row:', this.body[1]);
 
+        let updateRows = 40 > this.body.length ? this.body.length : 40;
         //colDataTypes contains all keys that should be numbers.  Make sure the first row in body if empty has a zero in place to ensure the correct data type.
-        colDataTypes.forEach(item => {
-            if(this.body[1][item.key] == null || (typeof this.body[1][item.key] === "string" && this.body[1][item.key].length === 0) ) {
-                if(item.value === "NUMBER")
-                    this.body[1][item.key] = 0;
-                else if (item.value === "STRING")
-                    this.body[1][item.key] = " ";
+        for(var i = 1; i<(updateRows-1);i=i+2) {
+            colDataTypes.forEach(item => {
+                if(this.body[i][item.key] == null || (typeof this.body[i][item.key] === "string" && this.body[i][item.key].length === 0) ) {
+                    if(item.value === "NUMBER")
+                        this.body[i][item.key] = 0;
+                    else if (item.value === "STRING")
+                        this.body[i][item.key] = " ";
+                }
+            })
             }
-        })
     }
     async processRow(stream, reject, data) {
         try {
