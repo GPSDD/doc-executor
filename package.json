@@ -6,7 +6,8 @@
   "scripts": {
     "test": "",
     "start": "NODE_PATH=app/src node app/index.js",
-    "dev": "NODE_PATH=app/src nodemon app/index.js | bunyan"
+    "dev": "NODE_PATH=app/src nodemon app/index.js | bunyan",
+    "dev-windows": "cross-env NODE_PATH=app/src nodemon app/index.js | bunyan"
   },
   "keywords": [],
   "author": "Vizzuality",
@@ -32,6 +33,7 @@
     "bluebird": "^3.4.7",
     "bunyan": "^1.8.5",
     "config": "^1.21.0",
+    "cross-env": "^5.2.0",
     "doc-importer-messages": "git+http://github.com/resource-watch/doc-importer-messages.git#master",
     "download": "^7.1.0",
     "elasticsearch": "^14.0.0",

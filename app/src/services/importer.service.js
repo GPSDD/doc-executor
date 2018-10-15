@@ -108,7 +108,7 @@ class ImporterService {
                         if(!colDataTypes[rowKey])
                             colDataTypes.push({key:rowKey,value:"NUMBER"})
                     }
-                    else if(row[rowKey] !== null && row[rowKey].length > 0) {
+                    else if(typeof row[rowKey] != 'undefined' && row[rowKey].length > 0) {
                         //let's delete the key so we no longer need to iterate through that key since there's no
                         //data serialization that needs to occur
                         //string should overwrite number
