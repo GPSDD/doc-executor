@@ -4,7 +4,6 @@ const _ = require('lodash');
 const dataQueueService = require('services/data-queue.service');
 const statusQueueService = require('services/status-queue.service');
 const StamperyService = require('services/stamperyService');
-
 const CONTAIN_SPACES = /\s/g;
 const IS_NUMBER = /^\d+$/;
 function isJSONObject(value) {
@@ -36,6 +35,7 @@ class ImporterService {
         this.legend = msg.legend;
         this.taskId = msg.taskId;
         this.index = msg.index;
+        this.rowNumber = 0;
         this.type = msg.indexType;
         this.indexObj = {
             index: {
@@ -50,6 +50,7 @@ class ImporterService {
         return new Promise(async(resolve, reject) => {
             try {
                 logger.debug('Starting read file');
+                this.rowNumber = 0;
                 const converter = ConverterFactory.getInstance(this.provider, this.url, this.dataPath, this.verify);
                 // StamperyService
                 if (this.verify) {
@@ -146,6 +147,8 @@ class ImporterService {
                     if(data.country && data.country.indexOf('#') > -1){
                         logger.debug('skip row - has hashes')
                     } else {
+                        data["row_num"] = this.rowNumber;
+                        this.rowNumber++;
                         this.body.push(this.indexObj);
                         this.body.push(data);    
                     }
