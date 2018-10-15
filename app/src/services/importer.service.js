@@ -97,7 +97,7 @@ class ImporterService {
     //this function will loop numRows into the body data to verify the first row contains all the correct data for the column data type
     //for now we are just checking for numbers, since that seems to be the cause for most data skips
     checkColumnDataTypes(numRows) {
-        const loopRows = numRows > this.body.length ? numRows : this.body.length;
+        const loopRows = numRows > this.body.length ? this.body.length : numRows;
         let colDataTypes = [];
         let dataKeys = Object.keys(this.body[0]); 
         for(var i = 0; i<(loopRows-1);i++) {
