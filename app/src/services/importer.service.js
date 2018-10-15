@@ -103,23 +103,25 @@ class ImporterService {
         for(var i = 0; i<(loopRows-1);i++) {
             const row = this.body[i];
             _.forEach(dataKeys, function(rowKey) {
-                if(colDataTypes[rowKey] == null || colDataTypes[rowKey]) {
-                    if(IS_NUMBER.test(row[rowKey])) {
-                        if(!colDataTypes[rowKey])
-                            colDataTypes.push({key:rowKey,value:"NUMBER"})
-                    }
-                    else if(typeof row[rowKey] != 'undefined' && row[rowKey].length > 0) {
-                        //let's delete the key so we no longer need to iterate through that key since there's no
-                        //data serialization that needs to occur
-                        //string should overwrite number
-                        if(colDataTypes[rowKey] && colDataTypes[rowKey] === "NUMBER")
-                            colDataTypes[rowKey] === "STRING"
-                        else
-                            colDataTypes.push({key:rowKey,value:"STRING"})
-                    }
-                }                    
+                if(IS_NUMBER.test(row[rowKey])) {
+                    if(!colDataTypes[rowKey])
+                        colDataTypes.push({key:rowKey,value:"NUMBER"})
+                }
+                else if(typeof row[rowKey] != 'undefined' && row[rowKey].length > 0) {
+                    //let's delete the key so we no longer need to iterate through that key since there's no
+                    //data serialization that needs to occur
+                    //string should overwrite number
+                    if(colDataTypes[rowKey] && colDataTypes[rowKey] === "NUMBER")
+                        colDataTypes[rowKey] === "STRING"
+                    else if(!colDataTypes[rowKey])
+                        colDataTypes.push({key:rowKey,value:"STRING"})
+                }
             })
         }
+
+        logger.debug('colDataTypes:', colDataTypes);
+        logger.debug('first row:', this.body[0]);
+
         //colDataTypes contains all keys that should be numbers.  Make sure the first row in body if empty has a zero in place to ensure the correct data type.
         colDataTypes.forEach(item => {
             if(this.body[0][item.key] == null || this.body[0][item.key].trim().length == 0) {
