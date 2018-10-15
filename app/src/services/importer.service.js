@@ -127,9 +127,9 @@ class ImporterService {
         colDataTypes.forEach(item => {
             if(this.body[1][item.key] == null || (typeof this.body[1][item.key] === "string" && this.body[1][item.key].length === 0) ) {
                 if(item.value === "NUMBER")
-                    this.body[1][key] = 0;
+                    this.body[1][item.key] = 0;
                 else if (item.value === "STRING")
-                    this.body[1][key] = " ";
+                    this.body[1][item.key] = " ";
             }
         })
     }
