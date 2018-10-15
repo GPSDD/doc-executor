@@ -125,7 +125,7 @@ class ImporterService {
 
         //colDataTypes contains all keys that should be numbers.  Make sure the first row in body if empty has a zero in place to ensure the correct data type.
         colDataTypes.forEach(item => {
-            if(this.body[1][item.key] == null || this.body[1][item.key].trim().length == 0) {
+            if(this.body[1][item.key] == null || (typeof this.body[1][item.key] === "string" && this.body[1][item.key].length === 0) ) {
                 if(item.value === "NUMBER")
                     this.body[1][key] = 0;
                 else if (item.value === "STRING")
