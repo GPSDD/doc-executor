@@ -120,9 +120,6 @@ class ImporterService {
             })
         }
 
-        logger.debug('colDataTypes:', colDataTypes);
-        logger.debug('first row:', this.body[1]);
-
         let updateRows = 40 > this.body.length ? this.body.length : 40;
         //colDataTypes contains all keys that should be numbers.  Make sure the first row in body if empty has a zero in place to ensure the correct data type.
         for(var i = 1; i<(updateRows-1);i=i+2) {

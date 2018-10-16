@@ -7,6 +7,8 @@ const randomstring = require('randomstring');
 const DownloadService = require('services/downloadService');
 const FileNotFound = require('errors/fileNotFound');
 
+//the hdx files have an extra header row, client have wanted to keep the second hash row - we strip the first row here.
+
 class CSVConverter {
 
     constructor(url, verify = false, delimiter = ',') {
@@ -36,6 +38,7 @@ class CSVConverter {
             }
             const result = await DownloadService.downloadFile(this.url, name, this.verify);
             this.filePath = result.path;
+
             this.sha256 = result.sha256;
         } else {
             this.filePath = this.url;
@@ -46,6 +49,9 @@ class CSVConverter {
         if (!fs.existsSync(this.filePath)) {
             throw new FileNotFound(`File ${this.filePath} does not exist`);
         }
+        
+        this.checkAndFormatHXL();
+        
         const readStream = csv.fromPath(this.filePath, {
             headers: true,
             delimiter: this.delimiter,
@@ -61,6 +67,52 @@ class CSVConverter {
         return readStream;
     }
 
+    checkAndFormatHXL() {
+        let isHXL = false;
+        let rowCount = 0;
+        //first check if isHXL
+        const readStream = csv.fromPath(this.filePath, {
+            headers: false,
+            delimiter: ',',
+            discardUnmappedColumns: true
+        });
+        readStream.on('data', (row) => {
+            if(rowCount === 1) {
+                if(row[0].indexOf('#') > -1) {
+                    isHXL = true;            
+                }
+            }
+            rowCount++;
+        })
+        if(!isHXL) {
+            return;
+        } 
+        //if HXL - strip first row
+        let name = randomstring.generate();
+        const path = `/tmp/${name}`;
+        rowCount = 0;
+        const transformStream = csv.fromPath(filePath, {
+            headers: false,
+            delimiter: ',',
+            discardUnmappedColumns: true
+        })
+        transformStream.transform((row) => {
+            if(rowCount === 0) {
+                rowCount++;
+                return;
+            }
+            rowCount++;
+            return row;
+        })
+        .pipe(csv.createWriteStream({headers: true}))
+        .pipe(fs.createWriteStream(path, {encoding: "utf8"}));
+
+        if (fs.existsSync(this.filePath)) {
+            fs.unlinkSync(this.filePath);
+        }
+
+        this.filePath = path;
+    }    
 }
 
 module.exports = CSVConverter;
