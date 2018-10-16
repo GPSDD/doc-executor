@@ -113,8 +113,6 @@ class CSVConverter {
                 rowCount++;
                 return row;
             })
-            .pipe(csv.createWriteStream({headers: true}))
-            .pipe(fs.createWriteStream(path, {encoding: "utf8"}))
             .on('end',()=>{
                 if (fs.existsSync(this.filePath)) {
                     fs.unlinkSync(this.filePath);
@@ -122,8 +120,13 @@ class CSVConverter {
         
                 logger.debug(this.filePath)
                 this.filePath = path;
+                setTimeout(()=>{
+
+                },1000);
                 resolve();        
-            });    
+            })
+            .pipe(csv.createWriteStream({headers: true}))
+            .pipe(fs.createWriteStream(path, {encoding: "utf8"}));
         })
     }    
 }
