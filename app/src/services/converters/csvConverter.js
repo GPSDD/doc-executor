@@ -52,6 +52,8 @@ class CSVConverter {
         
         this.checkAndFormatHXL();
         
+        logger.debug("Second filepath")
+        logger.debug(this.filePath)
         const readStream = csv.fromPath(this.filePath, {
             headers: true,
             delimiter: this.delimiter,
@@ -87,6 +89,7 @@ class CSVConverter {
         if(!isHXL) {
             return;
         } 
+        logger.debug("ISHXL")
         //if HXL - strip first row
         let name = randomstring.generate();
         const path = `/tmp/${name}`;
@@ -111,6 +114,7 @@ class CSVConverter {
             fs.unlinkSync(this.filePath);
         }
 
+        logger.debug(this.filePath)
         this.filePath = path;
     }    
 }
