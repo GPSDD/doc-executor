@@ -49,11 +49,13 @@ class CSVConverter {
         if (!fs.existsSync(this.filePath)) {
             throw new FileNotFound(`File ${this.filePath} does not exist`);
         }
+        let shouldFormatFile = await this.isHXL();
+        if(shouldFormatFile) {
+            logger.debug("formatted Second filepath")
+            logger.debug(this.filePath)
+            await this.formatHXL();
+        }
         
-        this.checkAndFormatHXL();
-        
-        logger.debug("Second filepath")
-        logger.debug(this.filePath)
         const readStream = csv.fromPath(this.filePath, {
             headers: true,
             delimiter: this.delimiter,
@@ -68,56 +70,60 @@ class CSVConverter {
 
         return readStream;
     }
-
-    checkAndFormatHXL() {
-        logger.debug("check and format")
-        let isHXL = false;
-        let rowCount = 0;
-        //first check if isHXL
-        const readStream = csv.fromPath(this.filePath, {
-            headers: false,
-            delimiter: ',',
-            discardUnmappedColumns: true
-        });
-        readStream.on('data', (row) => {
-            if(rowCount === 1) {
-                logger.debug(row)
-                if(row[0].indexOf('#') > -1) {
-                    isHXL = true;            
+    async isHXL() {
+        return new Promise((resolve,reject) => {
+            let isHXLFile = false;
+            const readStream = csv.fromPath(this.filePath, {
+                headers: false,
+                delimiter: ',',
+                discardUnmappedColumns: true
+            });
+            readStream.on('data', (row) => {
+                if(rowCount === 1) {
+                    logger.debug(row)
+                    if(row[0].indexOf('#') > -1) {
+                        isHXLFile = true;            
+                    }
                 }
-            }
-            rowCount++;
-        })
-        if(!isHXL) {
-            return;
-        } 
-        logger.debug("ISHXL")
-        //if HXL - strip first row
-        let name = randomstring.generate();
-        const path = `/tmp/${name}`;
-        rowCount = 0;
-        const transformStream = csv.fromPath(filePath, {
-            headers: false,
-            delimiter: ',',
-            discardUnmappedColumns: true
-        })
-        transformStream.transform((row) => {
-            if(rowCount === 0) {
                 rowCount++;
-                return;
-            }
-            rowCount++;
-            return row;
+            }).on('end', ()=>{
+                resolve(isHXLFile)
+            })
+    
         })
-        .pipe(csv.createWriteStream({headers: true}))
-        .pipe(fs.createWriteStream(path, {encoding: "utf8"}));
-
-        if (fs.existsSync(this.filePath)) {
-            fs.unlinkSync(this.filePath);
-        }
-
-        logger.debug(this.filePath)
-        this.filePath = path;
+    }
+    async formatHXL() {
+        return new Promise((resolve,reject) => {
+            let rowCount = 0;
+            //if HXL - strip first row
+            let name = randomstring.generate();
+            const path = `/tmp/${name}`;
+            rowCount = 0;
+            const transformStream = csv.fromPath(filePath, {
+                headers: false,
+                delimiter: ',',
+                discardUnmappedColumns: true
+            })
+            transformStream.transform((row) => {
+                if(rowCount === 0) {
+                    rowCount++;
+                    return;
+                }
+                rowCount++;
+                return row;
+            })
+            .pipe(csv.createWriteStream({headers: true}))
+            .pipe(fs.createWriteStream(path, {encoding: "utf8"}))
+            .on('end',()=>{
+                if (fs.existsSync(this.filePath)) {
+                    fs.unlinkSync(this.filePath);
+                }
+        
+                logger.debug(this.filePath)
+                this.filePath = path;
+                resolve();        
+            });    
+        })
     }    
 }
 
