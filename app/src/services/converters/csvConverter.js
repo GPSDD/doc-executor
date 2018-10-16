@@ -45,7 +45,7 @@ class CSVConverter {
         }
     }
 
-    serialize() {
+    async serialize() {
         if (!fs.existsSync(this.filePath)) {
             throw new FileNotFound(`File ${this.filePath} does not exist`);
         }

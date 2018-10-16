@@ -58,7 +58,7 @@ class ImporterService {
                     statusQueueService.sendBlockChainGenerated(this.taskId, blockchain);
                 }
                 await converter.init();
-                const stream = converter.serialize();
+                const stream = await converter.serialize();
                 logger.debug('Starting process file');
                 stream.on('data', this.processRow.bind(this, stream, reject));
                 stream.on('error', (err) => {
