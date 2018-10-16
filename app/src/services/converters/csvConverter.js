@@ -70,6 +70,7 @@ class CSVConverter {
     }
 
     checkAndFormatHXL() {
+        logger.debug("check and format")
         let isHXL = false;
         let rowCount = 0;
         //first check if isHXL
@@ -80,6 +81,7 @@ class CSVConverter {
         });
         readStream.on('data', (row) => {
             if(rowCount === 1) {
+                logger.debug(row)
                 if(row[0].indexOf('#') > -1) {
                     isHXL = true;            
                 }
