@@ -73,6 +73,7 @@ class CSVConverter {
     async isHXL() {
         return new Promise((resolve,reject) => {
             let isHXLFile = false;
+            let rowCount = 0;
             const readStream = csv.fromPath(this.filePath, {
                 headers: false,
                 delimiter: ',',
@@ -99,7 +100,7 @@ class CSVConverter {
             let name = randomstring.generate();
             const path = `/tmp/${name}`;
             rowCount = 0;
-            const transformStream = csv.fromPath(filePath, {
+            const transformStream = csv.fromPath(this.filePath, {
                 headers: false,
                 delimiter: ',',
                 discardUnmappedColumns: true
