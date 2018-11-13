@@ -103,7 +103,6 @@ class ImporterService {
         let dataKeys = Object.keys(this.body[1]); 
         for(var i = 1; i<(loopRows-1);i=i+2) {
             const row = this.body[i];
-            logger.debug(row);
             _.forEach(dataKeys, function(rowKey) {
                 if(IS_NUMBER.test(row[rowKey])) {
                     if(!colDataTypes[rowKey])
@@ -148,6 +147,9 @@ class ImporterService {
                                 if (CONTAIN_SPACES.test(key)) {
                                     delete data[key];
                                     newKey = key.replace(CONTAIN_SPACES, '_');
+                                }
+                                if(newKey === "") {
+                                    delete data[key];
                                 }
                                 if (IS_NUMBER.test(newKey)) {
                                     if (data[newKey]) {
