@@ -148,16 +148,16 @@ class ImporterService {
                                     delete data[key];
                                     newKey = key.replace(CONTAIN_SPACES, '_');
                                 }
-                                if(newKey === "") {
-                                    delete data[key];
-                                }
                                 if (IS_NUMBER.test(newKey)) {
                                     if (data[newKey]) {
                                         delete data[key];
                                     }
                                     newKey = `col_${newKey}`;
                                 }
-                                if (!(value instanceof Object) && isJSONObject(value)) {
+                                if(newKey === "") {
+                                    delete data[key];
+                                }
+                                else if (!(value instanceof Object) && isJSONObject(value)) {
                                     try {
                                         data[newKey] = JSON.parse(value);
                                     } catch (e) {
