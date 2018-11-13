@@ -77,7 +77,8 @@ class CSVConverter {
             const readStream = csv.fromPath(this.filePath, {
                 headers: false,
                 delimiter: ',',
-                discardUnmappedColumns: true
+                discardUnmappedColumns: true,
+                trim=true
             });
             readStream.on('data', (row) => {
                 if(rowCount === 1) {
@@ -103,12 +104,16 @@ class CSVConverter {
             const transformStream = csv.fromPath(this.filePath, {
                 headers: false,
                 delimiter: ',',
-                discardUnmappedColumns: true
+                discardUnmappedColumns: true,
+                trim=true
             })
             transformStream.transform((row) => {
                 if(rowCount === 0) {
                     rowCount++;
                     return;
+                }
+                if(rowCount === 1) {
+                    logger.debug(row)
                 }
                 rowCount++;
                 return row;

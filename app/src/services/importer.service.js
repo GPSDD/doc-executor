@@ -140,6 +140,7 @@ class ImporterService {
                 if (_.isPlainObject(data)) {
 
                     _.forEach(data, function (value, key) {
+                        
                         let newKey = key;
                         try {
                             if (newKey !== '_id') {
