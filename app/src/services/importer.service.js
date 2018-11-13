@@ -103,6 +103,7 @@ class ImporterService {
         let dataKeys = Object.keys(this.body[1]); 
         for(var i = 1; i<(loopRows-1);i=i+2) {
             const row = this.body[i];
+            logger.debug(row);
             _.forEach(dataKeys, function(rowKey) {
                 if(IS_NUMBER.test(row[rowKey])) {
                     if(!colDataTypes[rowKey])
