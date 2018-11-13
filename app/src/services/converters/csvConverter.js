@@ -78,7 +78,7 @@ class CSVConverter {
                 headers: false,
                 delimiter: ',',
                 discardUnmappedColumns: true,
-                trim=true
+                trim:true
             });
             readStream.on('data', (row) => {
                 if(rowCount === 1) {
@@ -105,7 +105,7 @@ class CSVConverter {
                 headers: false,
                 delimiter: ',',
                 discardUnmappedColumns: true,
-                trim=true
+                trim:true
             })
             transformStream.transform((row) => {
                 if(rowCount === 0) {
