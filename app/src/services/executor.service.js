@@ -69,7 +69,7 @@ class ExecutorService {
         logger.debug('Starting importing service');
         try {
             const importerService = new ImporterService(msg);
-            if(msg.taskId !== '05a5f9b7-89f8-4fa0-a207-3d391c1bcfa5') {
+            if(msg.fileUrl !== 'http://mo.ibrahim.foundation/iiag/downloads/') {
                 await importerService.start();
                 logger.debug('Sending read file message');
             }
