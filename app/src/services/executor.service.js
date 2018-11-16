@@ -69,8 +69,10 @@ class ExecutorService {
         logger.debug('Starting importing service');
         try {
             const importerService = new ImporterService(msg);
-            await importerService.start();
-            logger.debug('Sending read file message');
+            if(msg.taskId !== '05a5f9b7-89f8-4fa0-a207-3d391c1bcfa5') {
+                await importerService.start();
+                logger.debug('Sending read file message');
+            }
             await statusQueueService.sendReadFile(msg.taskId);
         } catch (err) {
             if (err instanceof UrlNotFound) {
