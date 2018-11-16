@@ -49,24 +49,28 @@ class CSVConverter {
         if (!fs.existsSync(this.filePath)) {
             throw new FileNotFound(`File ${this.filePath} does not exist`);
         }
-        let shouldFormatFile = await this.isHXL();
-        if(shouldFormatFile) {
-            logger.debug("formatted Second filepath")
-            logger.debug(this.filePath)
-            await this.formatHXL();
-        }
-        
-        const readStream = csv.fromPath(this.filePath, {
-            headers: true,
-            delimiter: this.delimiter,
-            discardUnmappedColumns: true
-        });
-        readStream.on('end', () => {
-            logger.info('Removing file', this.filePath);
-            if (fs.existsSync(this.filePath) && !this.verify) {
-                fs.unlinkSync(this.filePath);
+        try {
+            let shouldFormatFile = await this.isHXL();
+            if(shouldFormatFile) {
+                logger.debug("formatted Second filepath")
+                logger.debug(this.filePath)
+                await this.formatHXL();
             }
-        });
+            
+            const readStream = csv.fromPath(this.filePath, {
+                headers: true,
+                delimiter: this.delimiter,
+                discardUnmappedColumns: true
+            });
+            readStream.on('end', () => {
+                logger.info('Removing file', this.filePath);
+                if (fs.existsSync(this.filePath) && !this.verify) {
+                    fs.unlinkSync(this.filePath);
+                }
+            });    
+        } catch(ex) {
+            logger.error('Error parsing file', e);
+        }
 
         return readStream;
     }
