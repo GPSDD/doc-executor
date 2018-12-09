@@ -79,9 +79,7 @@ class ExecutorService {
                 await statusQueueService.sendErrorMessage(msg.taskId, err.message);
                 return;
             }
-            await statusQueueService.sendErrorMessage(msg.taskId, err.message);
-            return;
-            //throw err;
+            throw err;
         }
     }
 
