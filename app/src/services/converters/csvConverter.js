@@ -61,18 +61,17 @@ class CSVConverter {
                 headers: true,
                 delimiter: this.delimiter,
                 discardUnmappedColumns: true
-            });
-            readStream.on('end', () => {
+            }).on('end', () => {
                 logger.info('Removing file', this.filePath);
                 if (fs.existsSync(this.filePath) && !this.verify) {
                     fs.unlinkSync(this.filePath);
                 }
             });    
+            return readStream;
         } catch(ex) {
             logger.error('Error parsing file', e);
         }
 
-        return readStream;
     }
     async isHXL() {
         return new Promise((resolve,reject) => {
