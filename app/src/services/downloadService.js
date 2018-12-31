@@ -52,14 +52,15 @@ class DownloadService {
     static async checkIfExists(url) {
         logger.info(`Checking if the url ${url} exists`);
         try {
-            const result = await requestPromise.head({
-                url,
-                simple: false,
-                resolveWithFullResponse: true
-            });
-            logger.debug('Headers ', result.headers['content-type'], result.statusCode);
+            return true; //doing this for now as i'm getting false 404's for many hdx urls
+            // const result = await requestPromise.head({
+            //     url,
+            //     simple: false,
+            //     resolveWithFullResponse: true
+            // });
+            // logger.debug('Headers ', result.headers['content-type'], result.statusCode);
 
-            return result.statusCode === 200;
+            // return result.statusCode === 200;
         } catch(err) {
             logger.error(err);
             return false;
