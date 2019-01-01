@@ -35,8 +35,8 @@ const requestDownloadFile = function (url, path, verify) {
                 logger.info(`File size: ${humanFileSize(parseInt(data.length, 10))}`);
                 resolve();
             }).catch((err) => {
-                logger.error('Error downloading file', e);
-                reject(e);
+                logger.error('Error downloading file', err);
+                reject(err);
             });
           
         } catch (err) {
