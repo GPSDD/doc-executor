@@ -69,7 +69,7 @@ class ExecutorService {
         logger.debug('Starting importing service');
         try {
             const importerService = new ImporterService(msg);
-            if(msg.fileUrl !== 'http://mo.ibrahim.foundation/iiag/downloads/' && msg.fileUrl !== 'http://mif.media/2018-iiag-scores') {
+            if(msg.fileUrl !== 'http://mo.ibrahim.foundation/iiag/downloads/' && msg.fileUrl !== 'http://mif.media/2018-iiag-scores' && msg.fileUrl.indexOf('12-header=cross_cutting_issues&tagger-05-header=project_name') === -1) {
                 await importerService.start();
                 logger.debug('Sending read file message');
             }
